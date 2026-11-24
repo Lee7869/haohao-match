@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>好好配對</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 給 3 歲小孩：大、亮、溫柔，沒有失敗
+   IDEA: 絨布配對板——上面是「空位」，草地上的東西放進去
+   PICTURE: 天空、太陽、山丘的場景；大目標板與大選項就是畫面主角
+   COLOUR and TYPE: 天藍、草綠、陽光黃；Noto Sans TC 900，字很少
+   LAYOUT: 目標在上、選項在下，橫式平板與直式手機都撐滿 */
+:root{color-scheme:light dark;
+ --sky1:light-dark(#7fd3ff,#101a40);--sky2:light-dark(#dff5ff,#2b3c7c);
+ --hill:light-dark(#74d36d,#1f6b3d);--hill2:light-dark(#4fb85a,#164c2e);
+ --board:light-dark(#fffaf0,#24336a);--ink:light-dark(#22344d,#f2f6ff);
+ --s1:light-dark(#fff6b8,#ffffff);--s2:light-dark(#ffd23f,#e9edff);--s3:light-dark(#ffad00,#a9b3ff);
+ --cs:clamp(96px,24vmin,200px)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;overflow:hidden;font:700 18px/1.3 "Noto Sans TC",system-ui,sans-serif;color:var(--ink);
+ background:linear-gradient(var(--sky1),var(--sky2) 72%);touch-action:manipulation;user-select:none;
+ -webkit-user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:4px solid var(--s3);outline-offset:4px}
+.scene{position:fixed;inset:0;pointer-events:none}
+.scene svg{position:absolute;left:0;bottom:0;width:100%;height:40%}
+.sun{position:absolute;top:7%;right:7%;width:15vmin;height:15vmin;border-radius:50%;
+ background:radial-gradient(circle at 35% 35%,var(--s1),var(--s2) 60%,var(--s3));box-shadow:0 0 60px var(--s2)}
+.cloud{position:absolute;width:22vmin;height:7vmin;border-radius:99px;background:#ffffffd0;animation:drift 40s linear infinite alternate}
+.cloud::before{content:"";position:absolute;left:22%;top:-55%;width:45%;height:120%;border-radius:50%;background:inherit}
+.c1{top:12%;left:6%}.c2{top:26%;left:58%;transform:scale(.7);animation-duration:55s}
+:root[data-theme=dark] .cloud{opacity:.25}
+@keyframes drift{to{translate:12vw 0}}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:space-evenly;
+ padding:max(14px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom))}
+.screen.on{display:flex}
+h1,h2{margin:0;font-weight:900;color:#fff;text-align:center;text-wrap:balance;line-height:1.05;
+ text-shadow:0 4px 0 #2a8fd6,0 10px 20px #0003;letter-spacing:.04em}
+h1{font-size:clamp(44px,9vmin,76px)}h2{font-size:clamp(34px,7vmin,56px)}
+.modes{display:grid;grid-template-columns:repeat(3,auto);gap:clamp(12px,3vmin,30px);justify-content:center}
+@media(max-width:600px),(max-aspect-ratio:3/4){.modes{grid-template-columns:repeat(2,auto)}}
+.mode{width:clamp(120px,20vmin,210px);aspect-ratio:1/1.12;border:0;border-radius:34px;background:var(--board);
+ box-shadow:0 10px 0 #0002,0 20px 34px #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:4px;font-weight:900;font-size:clamp(20px,3.6vmin,32px);white-space:nowrap;transition:transform .15s,box-shadow .15s}
+.mode:active{transform:translateY(6px) scale(.97);box-shadow:0 4px 0 #0002}
+.mode svg{width:66%;height:auto;overflow:visible}
+.mode .emo{font-size:clamp(46px,9vmin,84px);line-height:1}
+.theme{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center}
+.tb{height:56px;padding:0 20px;border-radius:99px;border:0;background:var(--board);opacity:.85;font-weight:900;font-size:19px;
+ box-shadow:0 5px 0 #0002;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tb span{font-size:26px}
+.tb.on{background:#ffd23f;color:#5a3a00;opacity:1}
+.tb:active{transform:translateY(4px);box-shadow:0 1px 0 #0002}
+.note{font-size:13px;font-weight:700;color:var(--ink);opacity:.75;text-align:center}
+.top{position:absolute;top:max(12px,env(safe-area-inset-top));left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;z-index:2}
+#homeBtn{width:60px;height:60px;border-radius:50%;border:0;background:#ffffffcc;position:relative;display:grid;place-items:center;touch-action:none}
+#homeBtn>svg{width:30px;height:30px}
+#homeBtn .ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+#homeBtn .ring circle{fill:none;stroke:#ff8a00;stroke-width:5;stroke-dasharray:176;stroke-dashoffset:176;stroke-linecap:round}
+#homeBtn.hold .ring circle{stroke-dashoffset:0;transition:stroke-dashoffset 1.5s linear}
+#stars{display:flex;gap:6px}
+#stars svg{width:clamp(32px,5.5vmin,48px);height:auto}
+#stars path{fill:#ffffff55;stroke:#fff;stroke-width:5;stroke-linejoin:round;transition:fill .3s}
+#stars .got path{fill:#ffd23f;stroke:#ff9d00}
+#stars .got{animation:boing .6s}
+.spacer{width:60px}
+.board{margin-top:64px;width:min(80vw,52vmin);aspect-ratio:1;border-radius:42px;background:var(--board);
+ box-shadow:inset 0 -10px 0 #0000000d,0 16px 34px #0002;display:grid;place-items:center;container-type:size}
+.slot{width:78%;height:78%;display:grid;place-items:center}
+.slot svg{width:100%;height:100%}
+.slot .emo{font-size:58cqmin;line-height:1}
+.emo{display:block;transition:filter .5s}
+.emo.sh{filter:brightness(0) opacity(.72)}
+.slot.pop{animation:boing .7s}
+.choices{display:grid;grid-template-columns:repeat(var(--cols,3),var(--cs));gap:clamp(12px,3.5vmin,44px);justify-content:center}
+#game.many{--cs:clamp(80px,16vmin,150px)}#game.many .board{width:min(62vw,36vmin);margin-top:56px}
+#game.four{--cs:clamp(78px,19vmin,170px)}
+.choice{width:var(--cs);height:var(--cs);border:0;background:transparent;padding:0;display:grid;place-items:center;transition:transform .2s,opacity .3s}
+.choice svg{width:100%;height:100%;filter:drop-shadow(0 8px 6px #0003);overflow:visible}
+.choice .emo{font-size:calc(var(--cs)*.78);line-height:1;filter:drop-shadow(0 8px 6px #0003)}
+.choice:active{transform:scale(.9)}
+.choice.gone{opacity:.2;transform:scale(.8)}
+.nope{animation:shake .5s}.win{animation:boing .7s}.hintme{animation:pulse .9s ease-in-out 3}
+@keyframes shake{20%{transform:translateX(-14px) rotate(-7deg)}40%{transform:translateX(12px) rotate(6deg)}60%{transform:translateX(-8px)}80%{transform:translateX(6px)}}
+@keyframes boing{30%{transform:scale(1.3) rotate(-6deg)}60%{transform:scale(.94) rotate(4deg)}100%{transform:scale(1)}}
+@keyframes pulse{50%{transform:scale(1.18)}}
+#game.memo .board,#game.memo #choices,#game.bubble .board,#game.bubble #choices{display:none}
+.pond{display:none;position:absolute;inset:0;overflow:hidden}
+#game.bubble .pond{display:block}
+#dots{position:absolute;top:calc(max(12px,env(safe-area-inset-top)) + 64px);left:0;right:0;display:flex;justify-content:center;gap:10px;z-index:3;pointer-events:none}
+#dots i{width:18px;height:18px;border-radius:50%;background:#ffffff66;border:3px solid #fff}
+#dots i.on{background:#ffd23f;border-color:#ff9d00;animation:boing .5s}
+#want{position:absolute;top:calc(max(12px,env(safe-area-inset-top)) + 96px);left:50%;translate:-50% 0;z-index:3;pointer-events:none;
+ display:none;align-items:center;gap:8px;padding:6px 18px 6px 14px;border-radius:99px;background:var(--board);box-shadow:0 6px 0 #0002;font-weight:900;font-size:20px}
+#want.on{display:flex}#want span{font-size:44px;line-height:1}
+.bub{position:absolute;bottom:-25vmin;width:var(--bs);height:var(--bs);border-radius:50%;border:2px solid #ffffffcc;padding:0;
+ background:radial-gradient(circle at 32% 28%,#fff 0 9%,#ffffff55 14%,#bfe9ff33 45%,#5bbcff66 88%,#ffffffaa 100%);
+ box-shadow:inset -6px -10px 18px #5bbcff55,0 6px 16px #0001;display:grid;place-items:center;animation:rise var(--d) linear forwards,sway 2.4s ease-in-out infinite alternate;touch-action:none}
+.bub span{font-size:calc(var(--bs)*.52);line-height:1;pointer-events:none}
+@keyframes rise{to{bottom:115vh}}
+@keyframes sway{from{translate:-14px 0}to{translate:14px 0}}
+.popped{position:fixed;pointer-events:none;z-index:4;line-height:1;animation:popout .9s ease-out forwards}
+@keyframes popout{0%{transform:translate(-50%,-50%) scale(.6)}35%{transform:translate(-50%,-50%) scale(1.5)}100%{transform:translate(-50%,-90%) scale(1.3);opacity:0}}
+.memo{display:none;gap:var(--mg,16px);grid-template-columns:repeat(var(--mc,2),var(--ms,140px));justify-content:center;margin-top:56px}
+#game.memo .memo{display:grid}
+.card{width:var(--ms);height:var(--ms);border:0;padding:0;background:none;perspective:900px}
+.card .in{display:block;position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.card.open .in,.card.got .in{transform:rotateY(180deg)}
+.card .f,.card .b{position:absolute;inset:0;border-radius:20%;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center;box-shadow:0 8px 0 #0002}
+.card .b{background:radial-gradient(circle,#ffffff38 22%,transparent 23%) 0 0/25% 25%,linear-gradient(135deg,#ffa12e,#ff7a00)}
+.card .b svg{width:42%;height:auto}
+.card .f{background:var(--board);transform:rotateY(180deg)}
+.card .f span{font-size:calc(var(--ms)*.6);line-height:1}
+.card.got .f{box-shadow:0 0 0 5px #ffd23f,0 8px 0 #0002}
+.card.got{animation:boing .6s}
+.spark{position:fixed;width:22px;height:22px;pointer-events:none;z-index:5;
+ clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);animation:fly .9s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(260deg) scale(.3);opacity:0}}
+.cf{position:fixed;top:-24px;width:14px;height:20px;border-radius:4px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(720deg)}}
+.trophy{width:clamp(150px,34vmin,280px);animation:boing 1s}
+.row{display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
+.big{width:clamp(120px,20vmin,170px);aspect-ratio:1;border:0;border-radius:36px;background:#ffd23f;box-shadow:0 10px 0 #e09a00;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:900;font-size:20px;color:#5a3a00}
+.big.alt{background:var(--board);box-shadow:0 10px 0 #0002;color:var(--ink)}
+.big:active{transform:translateY(6px);box-shadow:0 4px 0 #e09a00}
+.big svg{width:52%;height:auto}
+@media(max-width:600px){.board{margin-top:84px}}
+@media(prefers-reduced-motion:reduce){.cloud,.cf,.spark{animation:none!important;display:none}}
+</style>
+</head>
+<body>
+<div class="scene" aria-hidden="true">
+ <div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div>
+ <svg viewBox="0 0 1000 400" preserveAspectRatio="none">
+  <path d="M0 210 C200 110 380 130 520 200 C680 280 820 140 1000 180 L1000 400 L0 400Z" style="fill:var(--hill2)"/>
+  <path d="M0 285 C180 225 360 245 520 295 C700 350 840 255 1000 275 L1000 400 L0 400Z" style="fill:var(--hill)"/>
+ </svg>
+</div>
+
+<section id="home" class="screen on">
+ <h1>好好配對</h1>
+ <div class="modes">
+  <button class="mode" data-m="color" aria-label="顏色配對">
+   <svg viewBox="0 0 100 100"><circle cx="32" cy="38" r="21" fill="#ff3b30"/><circle cx="68" cy="38" r="21" fill="#1e7bff"/><circle cx="50" cy="70" r="21" fill="#ffcc00"/></svg>顏色</button>
+  <button class="mode" data-m="shape" aria-label="形狀配對">
+   <svg viewBox="0 0 100 100"><path d="M27 10 L48 46 L6 46Z" fill="#22b14c" stroke-linejoin="round"/><rect x="56" y="10" width="36" height="36" rx="6" fill="#9b51e0"/><circle cx="50" cy="74" r="20" fill="#ff8a00"/></svg>形狀</button>
+  <button class="mode" data-m="shadow" aria-label="影子配對">
+   <span class="emo sh" id="shIcon">🐘</span>影子</button>
+  <button class="mode" data-m="combo" aria-label="顏色加形狀配對">
+   <svg viewBox="0 0 100 100"><path d="M30 10 L50 46 L10 46Z" fill="#ff3b30" stroke-linejoin="round"/><circle cx="72" cy="28" r="18" fill="#ff3b30"/><path d="M50 56 L90 92 L10 92Z" fill="#1e6bff" stroke-linejoin="round"/></svg>顏色+形狀</button>
+  <button class="mode" data-m="bubble" aria-label="戳泡泡">
+   <svg viewBox="0 0 100 100"><defs><radialGradient id="bg1" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#bfe9ff" stop-opacity=".6"/><stop offset="1" stop-color="#5bbcff" stop-opacity=".9"/></radialGradient></defs><circle cx="38" cy="58" r="30" fill="url(#bg1)"/><circle cx="74" cy="30" r="18" fill="url(#bg1)"/><circle cx="78" cy="76" r="11" fill="url(#bg1)"/><text x="38" y="68" font-size="28" text-anchor="middle">🐥</text></svg>戳泡泡</button>
+  <button class="mode" data-m="memo" aria-label="翻牌記憶">
+   <svg viewBox="0 0 100 100"><rect x="8" y="14" width="38" height="50" rx="8" fill="#ff8a00" transform="rotate(-8 27 39)"/><rect x="54" y="14" width="38" height="50" rx="8" fill="#fffaf0" stroke="#22344d33" stroke-width="3" transform="rotate(8 73 39)"/><text x="73" y="50" font-size="26" text-anchor="middle" transform="rotate(8 73 39)">🐇</text><rect x="31" y="46" width="38" height="50" rx="8" fill="#9b51e0"/><path d="M50 60 L54 70 L64 70 L56 76 L59 86 L50 80 L41 86 L44 76 L36 70 L46 70Z" fill="#fff8"/></svg>翻牌記憶</button>
+ </div>
+ <div class="theme" role="group" aria-label="影子和翻牌的題材">
+  <span class="note">影子・翻牌・泡泡題材</span>
+  <button class="tb on" data-t="animal"><span>🐘</span>動物</button>
+  <button class="tb" data-t="vehicle"><span>🚗</span>交通工具</button>
+  <button class="tb" data-t="mix"><span>🐘🚗</span>混合</button>
+ </div>
+ <div class="note">家長：遊戲中長按左上角的房子 1.5 秒可回首頁</div>
+</section>
+
+<section id="game" class="screen">
+ <div class="top">
+  <button id="homeBtn" aria-label="長按回首頁">
+   <svg class="ring" viewBox="0 0 60 60"><circle cx="30" cy="30" r="28"/></svg>
+   <svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3Z" fill="#2a8fd6"/></svg>
+  </button>
+  <div id="stars"></div>
+  <div class="spacer"></div>
+ </div>
+ <div class="board"><div id="target" class="slot"></div></div>
+ <div id="choices" class="choices"></div>
+ <div id="memo" class="memo"></div>
+ <div id="pond" class="pond"><div id="dots"></div><div id="want"></div></div>
+</section>
+
+<section id="done" class="screen">
+ <svg class="trophy" viewBox="0 0 100 100"><path d="M50 6 L61 38 L95 38 L67 58 L78 92 L50 71 L22 92 L33 58 L5 38 L39 38Z" fill="#ffd23f" stroke="#ff9d00" stroke-width="4" stroke-linejoin="round"/><circle cx="41" cy="52" r="3.5" fill="#5a3a00"/><circle cx="59" cy="52" r="3.5" fill="#5a3a00"/><path d="M42 61 Q50 68 58 61" stroke="#5a3a00" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+ <h2>好棒！全部找到了！</h2>
+ <div class="row">
+  <button id="again" class="big" aria-label="再玩一次"><svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 8 8h-3a5 5 0 1 1-5-5v3l5-4.5L12 1z" fill="#5a3a00"/></svg>再玩</button>
+  <button id="toHome" class="big alt" aria-label="換一個遊戲"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2" fill="#ff3b30"/><rect x="13" y="3" width="8" height="8" rx="2" fill="#1e7bff"/><rect x="3" y="13" width="8" height="8" rx="2" fill="#ffcc00"/><rect x="13" y="13" width="8" height="8" rx="2" fill="#22b14c"/></svg>換一個</button>
+ </div>
+</section>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const STAR='M50 6 L61 38 L95 38 L67 58 L78 92 L50 71 L22 92 L33 58 L5 38 L39 38Z';
+const COLORS=[{n:'紅色',c:'#ff3b30',s:'粉紅色'},{n:'粉紅色',c:'#ff7eb6',s:'紅色'},{n:'黃色',c:'#ffcc00',s:'橘色'},{n:'橘色',c:'#ff8a00',s:'黃色'},
+ {n:'藍色',c:'#1e6bff',s:'淺藍色'},{n:'淺藍色',c:'#62c8ff',s:'藍色'},{n:'綠色',c:'#1f9e45',s:'淺綠色'},{n:'淺綠色',c:'#9be15d',s:'綠色'},
+ {n:'紫色',c:'#9b51e0',s:'粉紅色'},{n:'咖啡色',c:'#8b5a2b',s:'橘色'},{n:'黑色',c:'#2b2b2b',s:'咖啡色'}];
+const SHAPES=[
+ {n:'圓形',d:'<circle cx="50" cy="50" r="42"/>',s:'橢圓形'},
+ {n:'橢圓形',d:'<ellipse cx="50" cy="50" rx="45" ry="28"/>',s:'圓形'},
+ {n:'正方形',d:'<rect x="9" y="9" width="82" height="82" rx="8"/>',s:'長方形'},
+ {n:'長方形',d:'<rect x="4" y="24" width="92" height="52" rx="8"/>',s:'正方形'},
+ {n:'三角形',d:'<path d="M50 7 L95 89 L5 89Z"/>',s:'半圓形'},
+ {n:'半圓形',d:'<path d="M5 72 A45 45 0 0 1 95 72Z"/>',s:'月亮'},
+ {n:'月亮',d:'<path d="M60 6 A44 44 0 1 0 94 64 A34 34 0 1 1 60 6Z"/>',s:'半圓形'},
+ {n:'星星',d:'<path d="'+STAR+'"/>',s:'六邊形'},
+ {n:'六邊形',d:'<path d="M28 10 L72 10 L94 50 L72 90 L28 90 L6 50Z"/>',s:'圓形'},
+ {n:'愛心',d:'<path d="M50 90 C20 68 5 52 5 33 C5 17 17 8 30 8 C40 8 47 14 50 22 C53 14 60 8 70 8 C83 8 95 17 95 33 C95 52 80 68 50 90Z"/>',s:'月亮'}];
+const ANIMALS=[
+ {n:'小狗',e:'🐕',s:'汪汪汪！'},{n:'小貓',e:'🐈',s:'喵喵喵！'},{n:'牛',e:'🐄',s:'哞～'},{n:'小豬',e:'🐖',s:'齁齁齁！'},
+ {n:'公雞',e:'🐓',s:'喔喔喔！'},{n:'兔子',e:'🐇',s:'跳跳跳！'},{n:'大象',e:'🐘',s:'鼻子長長的！'},{n:'長頸鹿',e:'🦒',s:'脖子好長喔！'},
+ {n:'烏龜',e:'🐢',s:'慢慢爬！'},{n:'鴨子',e:'🦆',s:'呱呱呱！'},{n:'馬',e:'🐎',s:'噠噠噠！'},{n:'綿羊',e:'🐑',s:'咩～'},
+ {n:'猴子',e:'🐒',s:'吱吱吱！'},{n:'企鵝',e:'🐧',s:'搖搖擺擺！'},{n:'駱駝',e:'🐫',s:'背上有駝峰！'},{n:'鱷魚',e:'🐊',s:'嘴巴好大！'},
+ {n:'袋鼠',e:'🦘',s:'跳好高！'},{n:'松鼠',e:'🐿️',s:'尾巴好蓬！'}];
+const VEHICLES=[
+ {n:'汽車',e:'🚗',s:'叭叭！',g:'car'},{n:'計程車',e:'🚕',s:'叭叭！',g:'car'},{n:'警車',e:'🚓',s:'喔咿喔咿！',g:'car'},
+ {n:'公車',e:'🚌',s:'大家上車囉！',g:'bus'},{n:'救護車',e:'🚑',s:'喔咿喔咿！',g:'van'},{n:'消防車',e:'🚒',s:'噹噹噹！',g:'van'},
+ {n:'卡車',e:'🚚',s:'載好多東西！',g:'van'},{n:'拖拉機',e:'🚜',s:'噗噗噗！'},{n:'腳踏車',e:'🚲',s:'鈴鈴鈴！',g:'bike'},
+ {n:'機車',e:'🏍️',s:'噗噗噗！',g:'bike'},{n:'火車',e:'🚂',s:'嘟嘟嘟！'},{n:'高鐵',e:'🚄',s:'咻～好快！'},
+ {n:'飛機',e:'✈️',s:'飛上天囉！'},{n:'直升機',e:'🚁',s:'噠噠噠！'},{n:'火箭',e:'🚀',s:'衝上太空！'},
+ {n:'輪船',e:'🚢',s:'嗚～'},{n:'帆船',e:'⛵',s:'在海上漂！'},{n:'起重機',e:'🏗️',s:'吊起好重的東西！'}];
+let theme='animal';
+try{const t=localStorage.getItem('match-theme');if(t)theme=t}catch(e){}
+const themePool=()=>theme==='vehicle'?VEHICLES:theme==='mix'?[...ANIMALS,...VEHICLES]:ANIMALS;
+function setTheme(t){theme=t;try{localStorage.setItem('match-theme',t)}catch(e){}
+ for(const b of document.querySelectorAll('.tb'))b.classList.toggle('on',b.dataset.t===t);
+ $('#shIcon').textContent=t==='vehicle'?'🚂':'🐘'}
+const LABEL={bubble:'戳泡泡',memo:'翻牌記憶',color:'顏色配對',shape:'形狀配對',combo:'顏色加形狀',shadow:'找影子'};
+const LEVELS=[2,3,4,6];
+const BUB_ROUNDS=5,BUB_NEED=5;
+const rounds=()=>mode==='memo'?LEVELS.length:mode==='bubble'?BUB_ROUNDS:8;
+let mode='color',round=0,q=null,locked=false,wrongs=0,idle=null,last=null,lp=null;
+
+/* 語音 */
+let voice=null;
+const pickVoice=()=>{try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/zh[-_]TW/i.test(v.lang))||vs.find(v=>/zh/i.test(v.lang))||null}catch(e){}};
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
+function say(t,queue){try{if(!queue)speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-TW';if(voice)u.voice=voice;u.rate=.9;u.pitch=1.2;speechSynthesis.speak(u)}catch(e){}}
+
+/* 音效 */
+let ac=null;
+function audio(){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}}
+function tone(f,t0,dur,type,vol){if(!ac)return;try{const t=ac.currentTime+t0,o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol||.18,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+dur+.05)}catch(e){}}
+const sfx={pop(){tone(660,0,.12,'triangle',.14)},win(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.09,.4))},
+ nope(){tone(330,0,.18,'triangle',.12);tone(262,.13,.24,'triangle',.1)},fan(){[523,659,784,659,784,1047].forEach((f,i)=>tone(f,i*.14,.45,'square',.06))}};
+
+/* 繪圖 */
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const byName=(pool,n)=>pool.find(x=>x.n===n);
+const BP='M50 6 C76 6 90 26 90 48 C90 74 68 92 50 94 C32 92 10 74 10 48 C10 26 24 6 50 6Z';
+function balloon(c,hole){return `<svg viewBox="0 0 100 122">`+(hole
+ ?`<path d="${BP}" fill="${c}" fill-opacity=".22" stroke="${c}" stroke-width="4" stroke-dasharray="9 7"/>`
+ :`<path d="${BP}" fill="${c}"/><path d="M43 93 L57 93 L50 102Z" fill="${c}"/><path d="M50 102 C45 108 55 113 50 121" stroke="#0006" stroke-width="2" fill="none"/><ellipse cx="33" cy="32" rx="8" ry="14" fill="#fff" opacity=".5" transform="rotate(-25 33 32)"/>`)+`</svg>`}
+function shapeSvg(s,c,hole,rot,sc){
+ const g=(rot||sc)?`<g transform="rotate(${rot||0} 50 50) translate(50 50) scale(${sc||1}) translate(-50 -50)">`:'<g>';
+ return `<svg viewBox="-6 -6 112 112">${g}`+s.d.replace('/>',hole
+ ?' fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="5" stroke-dasharray="10 8" stroke-linejoin="round"/>'
+ :` fill="${c}" stroke="#00000022" stroke-width="3" stroke-linejoin="round"/>`)+`</g></svg>`}
+const emo=(a,sh)=>`<span class="emo${sh?' sh':''}">${a.e}</span>`;
+
+/* 挑干擾項：後段一定放進最像的那個 */
+function pickOpts(pool,a,n,tricky){
+ let rest=pool.filter(x=>x!==a),out=[];
+ const sim=a.s&&byName(pool,a.s);
+ if(tricky&&sim&&sim!==a){out.push(sim);rest=rest.filter(x=>x!==sim)}
+ return shuffle([a,...out,...shuffle(rest)].slice(0,n));
+}
+function pickAns(pool){let a;do{a=rnd(pool)}while(a===last&&pool.length>1);last=a;return a}
+const GEN={
+ color(n,tricky){
+  const a=pickAns(COLORS),opts=pickOpts(COLORS,a,n,tricky),obj=rnd(SHAPES);
+  const t=shapeSvg(obj,a.c);
+  return {ask:`${a.n}的氣球在哪裡？`,yes:`答對了！是${a.n}！`,target:t,done:()=>t,
+   opts:opts.map(o=>({ok:o===a,label:o.n,html:balloon(o.c)}))}},
+ shape(n,tricky){
+  const a=pickAns(SHAPES),opts=pickOpts(SHAPES,a,n,tricky),cols=shuffle(COLORS);
+  const ch=opts.map((o,i)=>({ok:o===a,label:o.n,c:cols[i].c,html:shapeSvg(o,cols[i].c,false,round>=2?Math.round(Math.random()*50-25):0,round>=2?.72+Math.random()*.28:1)}));
+  return {ask:`哪一個是${a.n}？`,yes:`答對了！是${a.n}！`,target:shapeSvg(a,'',true),done:i=>shapeSvg(a,ch[i].c),opts:ch}},
+ combo(n){
+  const S=SHAPES.filter(s=>['圓形','正方形','三角形','星星','愛心','月亮'].includes(s.n));
+  const C=COLORS.filter(c=>['紅色','黃色','藍色','綠色','紫色','橘色'].includes(c.n));
+  let a;do{a={s:rnd(S),c:rnd(C)}}while(last&&last.s===a.s&&last.c===a.c);last=a;
+  const key=x=>x.s.n+x.c.n,seen=new Set([key(a)]),list=[a];
+  const add=x=>{if(list.length<n&&!seen.has(key(x))){seen.add(key(x));list.push(x)}};
+  add({s:rnd(S.filter(x=>x!==a.s)),c:a.c});add({s:a.s,c:rnd(C.filter(x=>x!==a.c))});
+  while(list.length<n)add({s:rnd(S),c:rnd(C)});
+  const t=shapeSvg(a.s,a.c);
+  return {ask:`${a.c.n}的${a.s.n}在哪裡？`,yes:`答對了！${a.c.n}的${a.s.n}！`,target:t,done:()=>t,
+   opts:shuffle(list).map(o=>({ok:o===a,label:o.c.n+o.s.n,html:shapeSvg(o.s,o.c.c)}))}},
+ shadow(n){
+  const pool=themePool(),a=pickAns(pool),used=new Set(a.g?[a.g]:[]),opts=[a];
+  for(const x of shuffle(pool)){if(opts.length>=n)break;if(x===a||(x.g&&used.has(x.g)))continue;opts.push(x);if(x.g)used.add(x.g)}
+  const isV=VEHICLES.includes(a);
+  return {ask:isV?'這是什麼的影子呢？':'這是誰的影子呢？',yes:`是${a.n}！${a.s}`,target:emo(a,true),done:()=>emo(a),
+   opts:shuffle(opts).map(o=>({ok:o===a,label:o.n,html:emo(o)}))}}
+};
+
+/* 流程 */
+function show(k){for(const id of ['home','game','done'])$('#'+id).classList.toggle('on',id===k)}
+function renderStars(){$('#stars').innerHTML=Array.from({length:rounds()},()=>`<svg viewBox="0 0 100 100"><path d="${STAR}"/></svg>`).join('')}
+function earn(k){const s=$('#stars').children[k];if(s)s.classList.add('got')}
+function hint(){const i=q.opts.findIndex(o=>o.ok),b=$('#choices').children[i];if(!b)return;b.classList.remove('hintme');void b.offsetWidth;b.classList.add('hintme')}
+function armIdle(){clearTimeout(idle);idle=setTimeout(()=>{if(!locked&&$('#game').classList.contains('on')){say(q.ask);hint();armIdle()}},12000)}
+function count(){return round<2?3:round<5?4:6}
+
+function newRound(first){
+ locked=false;wrongs=0;
+ const n=count();q=GEN[mode](n,round>=3);
+ const g=$('#game');g.classList.toggle('many',n>4);g.classList.toggle('four',n===4);
+ g.style.setProperty('--cols',n>4?3:n);
+ const t=$('#target');t.className='slot';t.innerHTML=q.target;
+ $('#choices').innerHTML=q.opts.map((o,i)=>`<button class="choice" data-i="${i}" aria-label="${o.label}">${o.html}</button>`).join('');
+ if(first)say(q.ask,true);else setTimeout(()=>say(q.ask),250);
+ armIdle();
+}
+/* 翻牌記憶 */
+let deck=[],first=null,memoBusy=true,memoT=[];
+const BACK=`<svg viewBox="0 0 100 100"><path d="${STAR}" fill="#fff"/></svg>`;
+function memoLayout(){
+ const N=deck.length;if(!N)return;
+ const cols=N<=4?(innerWidth>innerHeight?4:2):N<=6?3:(innerWidth>innerHeight?(N>8?6:4):(N>8?3:2));
+ const rows=Math.ceil(N/cols),gap=Math.max(10,Math.min(22,innerWidth*.025));
+ const w=innerWidth-32,hh=innerHeight-120;
+ const s=Math.floor(Math.min((w-gap*(cols-1))/cols,(hh-gap*(rows-1))/rows,210));
+ const m=$('#memo').style;m.setProperty('--mc',cols);m.setProperty('--ms',s+'px');m.setProperty('--mg',gap+'px');
+}
+addEventListener('resize',memoLayout);
+function newMemo(firstRound){
+ memoT.forEach(clearTimeout);memoT=[];
+ const pairs=LEVELS[round],pick=shuffle(themePool()).slice(0,pairs);
+ deck=shuffle([...pick,...pick]).map(a=>({a,open:true,got:false}));first=null;memoBusy=true;
+ q={ask:'找出一樣的兩張！',opts:[]};
+ $('#memo').innerHTML=deck.map((c,i)=>`<button class="card open" data-i="${i}" aria-label="卡片"><span class="in"><span class="b">${BACK}</span><span class="f"><span>${c.a.e}</span></span></span></button>`).join('');
+ memoLayout();
+ say(theme==='vehicle'?'記住它們在哪裡喔！':'記住牠們在哪裡喔！',firstRound);
+ memoT.push(setTimeout(()=>{
+  deck.forEach(c=>c.open=false);
+  for(const b of $('#memo').children)b.classList.remove('open');
+  memoBusy=false;sfx.pop();say('找出一樣的兩張！');armIdle();
+ },2200+pairs*700));
+}
+$('#memo').addEventListener('click',e=>{
+ const b=e.target.closest('.card');if(!b||memoBusy)return;
+ audio();const i=+b.dataset.i,c=deck[i];if(c.open||c.got)return;
+ armIdle();c.open=true;b.classList.add('open');sfx.pop();say(c.a.n);
+ if(first===null){first=i;return}
+ const j=first,d=deck[j];first=null;
+ const bj=$('#memo').children[j];
+ if(d.a===c.a){
+  c.got=d.got=true;
+  memoT.push(setTimeout(()=>{b.classList.add('got');bj.classList.add('got');sfx.win();burst(b);say(`找到了！是${c.a.n}！${c.a.s}`)},450));
+  if(deck.every(x=>x.got)){
+   memoBusy=true;clearTimeout(idle);
+   memoT.push(setTimeout(()=>{earn(round);round++;round>=rounds()?finish():newMemo()},2400));
+  }
+ }else{
+  memoBusy=true;
+  memoT.push(setTimeout(()=>sfx.nope(),600));
+  memoT.push(setTimeout(()=>{c.open=d.open=false;b.classList.remove('open');bj.classList.remove('open');memoBusy=false},1300));
+ }
+});
+/* 戳泡泡 */
+let bubT=null,popped=0,want=null,bubOn=false;
+function stopBubbles(){clearInterval(bubT);bubT=null;bubOn=false;for(const b of document.querySelectorAll('.bub'))b.remove()}
+function bubSfx(){if(!ac)return;try{const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(420,t);o.frequency.exponentialRampToValueAtTime(1300,t+.09);g.gain.setValueAtTime(.22,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+.16)}catch(e){}}
+function renderDots(){$('#dots').innerHTML=Array.from({length:BUB_NEED},(_,i)=>`<i class="${i<popped?'on':''}"></i>`).join('')}
+function spawn(){
+ const pond=$('#pond');if(pond.querySelectorAll('.bub').length>=8)return;
+ const pool=themePool(),it=(want&&Math.random()<.4)?want:rnd(pool);
+ const b=document.createElement('button');b.className='bub';b.setAttribute('aria-label',it.n);b._it=it;
+ const bs=Math.round(Math.min(innerWidth,innerHeight)*(.17+Math.random()*.07));
+ b.style.setProperty('--bs',Math.max(88,Math.min(bs,170))+'px');
+ b.style.left=(4+Math.random()*80)+'%';
+ b.style.setProperty('--d',(9-round*1.1+Math.random()*1.5).toFixed(1)+'s');
+ b.innerHTML=`<span>${it.e}</span>`;
+ b.addEventListener('animationend',e=>{if(e.animationName==='rise')b.remove()});
+ pond.appendChild(b);
+}
+function newBubbles(firstRound){
+ stopBubbles();popped=0;renderDots();
+ const pool=themePool();want=round>=2?rnd(pool):null;
+ const w=$('#want');w.classList.toggle('on',!!want);w.innerHTML=want?`找<span>${want.e}</span>`:'';
+ q={ask:want?`戳破有${want.n}的泡泡！`:'把泡泡戳破！',opts:[]};
+ say(q.ask,firstRound);
+ bubOn=true;spawn();bubT=setInterval(spawn,Math.max(550,1100-round*130));armIdle();
+}
+$('#pond').addEventListener('pointerdown',e=>{
+ const b=e.target.closest('.bub');if(!b||!bubOn)return;
+ audio();bubSfx();armIdle();
+ const r=b.getBoundingClientRect(),it=b._it,p=document.createElement('span');
+ p.className='popped';p.textContent=it.e;p.style.left=r.left+r.width/2+'px';p.style.top=r.top+r.height/2+'px';p.style.fontSize=r.width*.6+'px';
+ document.body.appendChild(p);setTimeout(()=>p.remove(),950);b.remove();
+ const counts=!want||it===want;
+ say(`${it.n}！${it.s}`);
+ if(!counts)return;
+ burst(p);popped++;renderDots();
+ if(popped>=BUB_NEED){
+  bubOn=false;clearInterval(bubT);clearTimeout(idle);sfx.win();earn(round);round++;
+  setTimeout(()=>say('好棒！'),900);
+  setTimeout(()=>{if(!$('#game').classList.contains('bubble'))return;round>=rounds()?(stopBubbles(),finish()):newBubbles()},2600);
+ }
+});
+function burst(el){
+ const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+ for(let i=0;i<16;i++){const s=document.createElement('i'),ang=Math.random()*Math.PI*2,d=110+Math.random()*160;
+  s.className='spark';s.style.left=cx-11+'px';s.style.top=cy-11+'px';s.style.background=rnd(COLORS).c;
+  s.style.setProperty('--dx',Math.cos(ang)*d+'px');s.style.setProperty('--dy',Math.sin(ang)*d+'px');
+  document.body.appendChild(s);setTimeout(()=>s.remove(),950)}
+}
+function confetti(){
+ for(let i=0;i<60;i++){const c=document.createElement('i');c.className='cf';c.style.left=Math.random()*100+'vw';
+  c.style.background=rnd(COLORS).c;c.style.animationDuration=2+Math.random()*2.5+'s';c.style.animationDelay=Math.random()*.8+'s';
+  document.body.appendChild(c);setTimeout(()=>c.remove(),5500)}
+}
+function start(m){
+ audio();sfx.pop();mode=m;round=0;last=null;renderStars();show('game');
+ try{const r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(r&&r.catch)r.catch(()=>{})}catch(e){}
+ stopBubbles();$('#game').classList.toggle('memo',m==='memo');$('#game').classList.toggle('bubble',m==='bubble');
+ say(`來玩${LABEL[m]}！`);m==='memo'?newMemo(true):m==='bubble'?newBubbles(true):newRound(true);
+}
+function finish(){clearTimeout(idle);stopBubbles();show('done');sfx.fan();say('好棒！你全部都找到了！');confetti()}
+function goHome(){clearTimeout(idle);memoT.forEach(clearTimeout);stopBubbles();try{speechSynthesis.cancel()}catch(e){}show('home')}
+
+$('#choices').addEventListener('click',e=>{
+ const b=e.target.closest('.choice');if(!b||locked)return;
+ audio();const i=+b.dataset.i,o=q.opts[i];armIdle();
+ if(o.ok){
+  locked=true;clearTimeout(idle);sfx.win();b.classList.add('win');
+  for(const x of $('#choices').children)if(x!==b)x.classList.add('gone');
+  const t=$('#target');t.innerHTML=q.done(i);t.classList.add('pop');burst(t);
+  setTimeout(()=>say(q.yes),250);
+  earn(round);round++;
+  setTimeout(()=>round>=rounds()?finish():newRound(),2600);
+ }else{
+  sfx.nope();b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');wrongs++;
+  if(wrongs>=3){say('在這裡喔！');hint()}else say('再找找看！'+q.ask);
+ }
+});
+for(const b of document.querySelectorAll('.tb'))b.addEventListener('click',()=>{audio();sfx.pop();setTheme(b.dataset.t)});
+setTheme(theme);
+for(const b of document.querySelectorAll('.mode'))b.addEventListener('click',()=>start(b.dataset.m));
+$('#again').addEventListener('click',()=>start(mode));
+$('#toHome').addEventListener('click',()=>{audio();sfx.pop();goHome()});
+const hb=$('#homeBtn');
+hb.addEventListener('pointerdown',()=>{hb.classList.add('hold');clearTimeout(lp);lp=setTimeout(()=>{hb.classList.remove('hold');goHome()},1500)});
+for(const ev of ['pointerup','pointerleave','pointercancel'])hb.addEventListener(ev,()=>{clearTimeout(lp);hb.classList.remove('hold')});
+for(const ev of ['gesturestart','dblclick','contextmenu'])document.addEventListener(ev,e=>e.preventDefault());
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+}
+</script>
+</body>
+</html>
