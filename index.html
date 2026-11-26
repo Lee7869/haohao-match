@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <title>好好配對</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
 <style>
 /* VOICE: 給 3 歲小孩：大、亮、溫柔，沒有失敗
    IDEA: 絨布配對板——上面是「空位」，草地上的東西放進去
@@ -25,7 +25,7 @@
  --hill:light-dark(#74d36d,#1f6b3d);--hill2:light-dark(#4fb85a,#164c2e);
  --board:light-dark(#fffaf0,#24336a);--ink:light-dark(#22344d,#f2f6ff);
  --s1:light-dark(#fff6b8,#ffffff);--s2:light-dark(#ffd23f,#e9edff);--s3:light-dark(#ffad00,#a9b3ff);
- --cs:clamp(96px,24vmin,200px)}
+ --cs:clamp(96px,24vmin,200px);--mw:clamp(110px,19vmin,200px);--mg2:clamp(12px,2.6vmin,28px)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -49,9 +49,10 @@ button:focus-visible{outline:4px solid var(--s3);outline-offset:4px}
 h1,h2{margin:0;font-weight:900;color:#fff;text-align:center;text-wrap:balance;line-height:1.05;
  text-shadow:0 4px 0 #2a8fd6,0 10px 20px #0003;letter-spacing:.04em}
 h1{font-size:clamp(44px,9vmin,76px)}h2{font-size:clamp(34px,7vmin,56px)}
-.modes{display:grid;grid-template-columns:repeat(3,auto);gap:clamp(12px,3vmin,30px);justify-content:center}
-@media(max-width:600px),(max-aspect-ratio:3/4){.modes{grid-template-columns:repeat(2,auto)}}
-.mode{width:clamp(120px,20vmin,210px);aspect-ratio:1/1.12;border:0;border-radius:34px;background:var(--board);
+
+.modes{display:flex;flex-wrap:wrap;gap:var(--mg2);justify-content:center;max-width:calc(4*var(--mw) + 3*var(--mg2) + 1px)}
+@media(max-width:600px),(max-aspect-ratio:3/4){:root{--mw:min(28vw,200px)}.modes{max-width:calc(3*var(--mw) + 2*var(--mg2) + 1px)}.mode{aspect-ratio:1/1!important;border-radius:26px!important}}
+.mode{width:var(--mw);aspect-ratio:1/1.12;border:0;border-radius:34px;background:var(--board);
  box-shadow:0 10px 0 #0002,0 20px 34px #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:4px;font-weight:900;font-size:clamp(20px,3.6vmin,32px);white-space:nowrap;transition:transform .15s,box-shadow .15s}
 .mode:active{transform:translateY(6px) scale(.97);box-shadow:0 4px 0 #0002}
@@ -85,7 +86,7 @@ h1{font-size:clamp(44px,9vmin,76px)}h2{font-size:clamp(34px,7vmin,56px)}
 .emo.sh{filter:brightness(0) opacity(.72)}
 .slot.pop{animation:boing .7s}
 .choices{display:grid;grid-template-columns:repeat(var(--cols,3),var(--cs));gap:clamp(12px,3.5vmin,44px);justify-content:center}
-#game.many{--cs:clamp(80px,16vmin,150px)}#game.many .board{width:min(62vw,36vmin);margin-top:56px}
+#game.many{--cs:clamp(80px,16vmin,150px)}#game.many .board{width:min(62vw,34vh);margin-top:56px}
 #game.four{--cs:clamp(78px,19vmin,170px)}
 .choice{width:var(--cs);height:var(--cs);border:0;background:transparent;padding:0;display:grid;place-items:center;transition:transform .2s,opacity .3s}
 .choice svg{width:100%;height:100%;filter:drop-shadow(0 8px 6px #0003);overflow:visible}
@@ -125,6 +126,14 @@ h1{font-size:clamp(44px,9vmin,76px)}h2{font-size:clamp(34px,7vmin,56px)}
 .card .f span{font-size:calc(var(--ms)*.6);line-height:1}
 .card.got .f{box-shadow:0 0 0 5px #ffd23f,0 8px 0 #0002}
 .card.got{animation:boing .6s}
+.abcT{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2cqmin}
+.abcT .ltr{font:800 50cqmin/1 "Baloo 2",system-ui,sans-serif}
+.abcT.solo .ltr{font-size:72cqmin}
+.abcT .emo{font-size:30cqmin;line-height:1}
+.abcT.pic .emo{font-size:52cqmin}
+.abcT .ask{font:800 18cqmin/1 "Baloo 2",sans-serif;color:var(--ink);opacity:.35}
+.tile{width:100%;height:100%;border-radius:24%;background:var(--board);box-shadow:0 8px 0 #0002;display:grid;place-items:center;
+ font:800 calc(var(--cs)*.6)/1.1 "Baloo 2",system-ui,sans-serif;color:var(--c);padding-bottom:4%}
 .spark{position:fixed;width:22px;height:22px;pointer-events:none;z-index:5;
  clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);animation:fly .9s ease-out forwards}
 @keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(260deg) scale(.3);opacity:0}}
@@ -161,6 +170,8 @@ h1{font-size:clamp(44px,9vmin,76px)}h2{font-size:clamp(34px,7vmin,56px)}
    <span class="emo sh" id="shIcon">🐘</span>影子</button>
   <button class="mode" data-m="combo" aria-label="顏色加形狀配對">
    <svg viewBox="0 0 100 100"><path d="M30 10 L50 46 L10 46Z" fill="#ff3b30" stroke-linejoin="round"/><circle cx="72" cy="28" r="18" fill="#ff3b30"/><path d="M50 56 L90 92 L10 92Z" fill="#1e6bff" stroke-linejoin="round"/></svg>顏色+形狀</button>
+  <button class="mode" data-m="abc" aria-label="ABC 字母">
+   <svg viewBox="0 0 100 100"><text x="50" y="66" text-anchor="middle" font-family="'Baloo 2',sans-serif" font-weight="800" font-size="42"><tspan fill="#ff3b30">A</tspan><tspan fill="#1e6bff">B</tspan><tspan fill="#1f9e45">C</tspan></text></svg>字母</button>
   <button class="mode" data-m="bubble" aria-label="戳泡泡">
    <svg viewBox="0 0 100 100"><defs><radialGradient id="bg1" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#bfe9ff" stop-opacity=".6"/><stop offset="1" stop-color="#5bbcff" stop-opacity=".9"/></radialGradient></defs><circle cx="38" cy="58" r="30" fill="url(#bg1)"/><circle cx="74" cy="30" r="18" fill="url(#bg1)"/><circle cx="78" cy="76" r="11" fill="url(#bg1)"/><text x="38" y="68" font-size="28" text-anchor="middle">🐥</text></svg>戳泡泡</button>
   <button class="mode" data-m="memo" aria-label="翻牌記憶">
@@ -236,7 +247,14 @@ const themePool=()=>theme==='vehicle'?VEHICLES:theme==='mix'?[...ANIMALS,...VEHI
 function setTheme(t){theme=t;try{localStorage.setItem('match-theme',t)}catch(e){}
  for(const b of document.querySelectorAll('.tb'))b.classList.toggle('on',b.dataset.t===t);
  $('#shIcon').textContent=t==='vehicle'?'🚂':'🐘'}
-const LABEL={bubble:'戳泡泡',memo:'翻牌記憶',color:'顏色配對',shape:'形狀配對',combo:'顏色加形狀',shadow:'找影子'};
+const ABC=[['A','Apple','🍎'],['B','Ball','⚽'],['C','Cat','🐈'],['D','Dog','🐕'],['E','Elephant','🐘'],['F','Fish','🐟'],
+ ['G','Grapes','🍇'],['H','House','🏠'],['I','Ice cream','🍦'],['J','Juice','🧃'],['K','Key','🔑'],['L','Lion','🦁'],['M','Monkey','🐒'],
+ ['N','Nose','👃'],['O','Orange','🍊'],['P','Pig','🐖'],['Q','Queen','👸'],['R','Rabbit','🐇'],['S','Sun','☀️'],['T','Tiger','🐅'],
+ ['U','Umbrella','☂️'],['V','Van','🚐'],['W','Watermelon','🍉'],['X','X',''],['Y','Yo-yo','🪀'],['Z','Zebra','🦓']].map(([L,w,e])=>({L,l:L.toLowerCase(),w,e}));
+const LOOK={A:'R',B:'PRD',C:'OGQ',D:'BOP',E:'FB',F:'EP',G:'CO',H:'NM',I:'LT',J:'IL',K:'XR',L:'IT',M:'NW',N:'MH',O:'QCD',P:'RBF',Q:'OG',R:'PB',S:'Z',T:'LI',U:'VW',V:'UY',W:'MV',X:'KY',Y:'VX',Z:'SN',
+ a:'oe',b:'dpq',c:'oe',d:'bqp',e:'ac',f:'t',g:'qy',h:'nb',i:'lj',j:'i',k:'h',l:'it',m:'nw',n:'mu',o:'ca',p:'qbd',q:'pdg',r:'n',s:'z',t:'fl',u:'nv',v:'uw',w:'mv',x:'k',y:'gv',z:'s'};
+const INK=['#ff3b30','#ff8a00','#d9a000','#1f9e45','#1e6bff','#9b51e0','#ff4f9a','#00a0a0'];
+const LABEL={abc:'ABC',bubble:'戳泡泡',memo:'翻牌記憶',color:'顏色配對',shape:'形狀配對',combo:'顏色加形狀',shadow:'找影子'};
 const LEVELS=[2,3,4,6];
 const BUB_ROUNDS=5,BUB_NEED=5;
 const rounds=()=>mode==='memo'?LEVELS.length:mode==='bubble'?BUB_ROUNDS:8;
@@ -255,6 +273,11 @@ function tone(f,t0,dur,type,vol){if(!ac)return;try{const t=ac.currentTime+t0,o=a
 const sfx={pop(){tone(660,0,.12,'triangle',.14)},win(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.09,.4))},
  nope(){tone(330,0,.18,'triangle',.12);tone(262,.13,.24,'triangle',.1)},fan(){[523,659,784,659,784,1047].forEach((f,i)=>tone(f,i*.14,.45,'square',.06))}};
 
+let voiceEn=null;
+const pickEn=()=>{try{const vs=speechSynthesis.getVoices();voiceEn=vs.find(v=>/en[-_]US/i.test(v.lang)&&/female|samantha|google us/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}};
+try{pickEn();speechSynthesis.addEventListener('voiceschanged',pickEn)}catch(e){}
+function sayEn(t,queue){try{if(!queue)speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voiceEn)u.voice=voiceEn;u.rate=.85;u.pitch=1.15;speechSynthesis.speak(u)}catch(e){}}
+const sp=(t,queue)=>(q&&q.en?sayEn:say)(t,queue);
 /* 繪圖 */
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -299,6 +322,24 @@ const GEN={
   const t=shapeSvg(a.s,a.c);
   return {ask:`${a.c.n}的${a.s.n}在哪裡？`,yes:`答對了！${a.c.n}的${a.s.n}！`,target:t,done:()=>t,
    opts:shuffle(list).map(o=>({ok:o===a,label:o.c.n+o.s.n,html:shapeSvg(o.s,o.c.c)}))}},
+ abc(n){
+  const stage=round<2?0:round<5?1:2;
+  const pool=stage===1?ABC.filter(x=>x.e):ABC;
+  const a=pickAns(pool),key=stage===2?'l':'L',ch=a[key];
+  const look=(LOOK[ch]||'').split('').filter(c=>c!==ch);
+  const seen=new Set([ch]),list=[ch];
+  for(const c of shuffle(look)){if(list.length>=Math.min(n,stage?3:1))break;seen.add(c);list.push(c)}
+  for(const x of shuffle(ABC)){if(list.length>=n)break;if(!seen.has(x[key])){seen.add(x[key]);list.push(x[key])}}
+  const ink=shuffle(INK),cA=ink[0];
+  const word=a.e?` ${a.L} is for ${a.w}!`:'';
+  const tgt=stage===0?`<div class="abcT"><span class="ltr" style="color:${cA}">${a.L}</span>${a.e?`<span class="emo">${a.e}</span>`:''}</div>`
+   :stage===1?`<div class="abcT pic"><span class="emo">${a.e}</span><span class="ask">? ? ?</span></div>`
+   :`<div class="abcT solo"><span class="ltr" style="color:${cA}">${a.L}</span></div>`;
+  const done=stage===2?`<div class="abcT"><span class="ltr" style="color:${cA}">${a.L}${a.l}</span>${a.e?`<span class="emo">${a.e}</span>`:''}</div>`
+   :`<div class="abcT"><span class="ltr" style="color:${cA}">${a.L}</span><span class="emo">${a.e||''}</span></div>`;
+  const ask=stage===0?`Find the letter ${a.L}!`:stage===1?`${a.w}! ${a.w} starts with ${a.L}. Where is ${a.L}?`:`This is big ${a.L}. Where is little ${a.l}?`;
+  return {en:true,ask,yes:stage===2?`Yes! Little ${a.l}!${word}`:`Yes! ${a.L}!${word}`,target:tgt,done:()=>done,
+   opts:shuffle(list).map((c,i)=>({ok:c===ch,label:c,html:`<span class="tile" style="--c:${ink[(i%(ink.length-1))+1]}">${c}</span>`}))}},
  shadow(n){
   const pool=themePool(),a=pickAns(pool),used=new Set(a.g?[a.g]:[]),opts=[a];
   for(const x of shuffle(pool)){if(opts.length>=n)break;if(x===a||(x.g&&used.has(x.g)))continue;opts.push(x);if(x.g)used.add(x.g)}
@@ -312,7 +353,7 @@ function show(k){for(const id of ['home','game','done'])$('#'+id).classList.togg
 function renderStars(){$('#stars').innerHTML=Array.from({length:rounds()},()=>`<svg viewBox="0 0 100 100"><path d="${STAR}"/></svg>`).join('')}
 function earn(k){const s=$('#stars').children[k];if(s)s.classList.add('got')}
 function hint(){const i=q.opts.findIndex(o=>o.ok),b=$('#choices').children[i];if(!b)return;b.classList.remove('hintme');void b.offsetWidth;b.classList.add('hintme')}
-function armIdle(){clearTimeout(idle);idle=setTimeout(()=>{if(!locked&&$('#game').classList.contains('on')){say(q.ask);hint();armIdle()}},12000)}
+function armIdle(){clearTimeout(idle);idle=setTimeout(()=>{if(!locked&&$('#game').classList.contains('on')){sp(q.ask);hint();armIdle()}},12000)}
 function count(){return round<2?3:round<5?4:6}
 
 function newRound(first){
@@ -322,7 +363,7 @@ function newRound(first){
  g.style.setProperty('--cols',n>4?3:n);
  const t=$('#target');t.className='slot';t.innerHTML=q.target;
  $('#choices').innerHTML=q.opts.map((o,i)=>`<button class="choice" data-i="${i}" aria-label="${o.label}">${o.html}</button>`).join('');
- if(first)say(q.ask,true);else setTimeout(()=>say(q.ask),250);
+ if(first)sp(q.ask,true);else setTimeout(()=>sp(q.ask),250);
  armIdle();
 }
 /* 翻牌記憶 */
@@ -440,12 +481,13 @@ $('#choices').addEventListener('click',e=>{
   locked=true;clearTimeout(idle);sfx.win();b.classList.add('win');
   for(const x of $('#choices').children)if(x!==b)x.classList.add('gone');
   const t=$('#target');t.innerHTML=q.done(i);t.classList.add('pop');burst(t);
-  setTimeout(()=>say(q.yes),250);
+  setTimeout(()=>sp(q.yes),250);
   earn(round);round++;
   setTimeout(()=>round>=rounds()?finish():newRound(),2600);
  }else{
   sfx.nope();b.classList.remove('nope');void b.offsetWidth;b.classList.add('nope');wrongs++;
-  if(wrongs>=3){say('在這裡喔！');hint()}else say('再找找看！'+q.ask);
+  if(q.en){if(wrongs>=3){sayEn('Here it is!');hint()}else sayEn('Try again! '+q.ask)}
+  else if(wrongs>=3){say('在這裡喔！');hint()}else say('再找找看！'+q.ask);
  }
 });
 for(const b of document.querySelectorAll('.tb'))b.addEventListener('click',()=>{audio();sfx.pop();setTheme(b.dataset.t)});
