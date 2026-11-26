@@ -71,8 +71,8 @@ h1{font-size:clamp(44px,9vmin,76px)}h2{font-size:clamp(34px,7vmin,56px)}
 #homeBtn .ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
 #homeBtn .ring circle{fill:none;stroke:#ff8a00;stroke-width:5;stroke-dasharray:176;stroke-dashoffset:176;stroke-linecap:round}
 #homeBtn.hold .ring circle{stroke-dashoffset:0;transition:stroke-dashoffset 1.5s linear}
-#stars{display:flex;gap:6px}
-#stars svg{width:clamp(32px,5.5vmin,48px);height:auto}
+#stars{display:flex;gap:4px;flex:1;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 140px)}
+#stars svg{width:clamp(22px,5.5vmin,48px);height:auto}
 #stars path{fill:#ffffff55;stroke:#fff;stroke-width:5;stroke-linejoin:round;transition:fill .3s}
 #stars .got path{fill:#ffd23f;stroke:#ff9d00}
 #stars .got{animation:boing .6s}
@@ -134,6 +134,15 @@ h1{font-size:clamp(44px,9vmin,76px)}h2{font-size:clamp(34px,7vmin,56px)}
 .abcT .ask{font:800 18cqmin/1 "Baloo 2",sans-serif;color:var(--ink);opacity:.35}
 .tile{width:100%;height:100%;border-radius:24%;background:var(--board);box-shadow:0 8px 0 #0002;display:grid;place-items:center;
  font:800 calc(var(--cs)*.6)/1.1 "Baloo 2",system-ui,sans-serif;color:var(--c);padding-bottom:4%}
+.cnt{width:100%;height:100%;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:2cqmin}
+.cnt .emo{font-size:var(--es);line-height:1.1}
+.seq{display:flex;align-items:baseline;gap:6cqmin;font:800 24cqmin/1 "Baloo 2",system-ui,sans-serif}
+.seq b{font-weight:800;color:var(--ink);opacity:.3}
+.listen{display:flex;flex-direction:column;align-items:center;gap:3cqmin}
+.listen svg{width:46cqmin;height:46cqmin}
+.listen small{font:900 7cqmin/1.2 "Noto Sans TC",sans-serif;opacity:.55}
+.tile.two{font-size:calc(var(--cs)*.46)}
+.board{cursor:pointer}
 .spark{position:fixed;width:22px;height:22px;pointer-events:none;z-index:5;
  clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);animation:fly .9s ease-out forwards}
 @keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(260deg) scale(.3);opacity:0}}
@@ -172,6 +181,8 @@ h1{font-size:clamp(44px,9vmin,76px)}h2{font-size:clamp(34px,7vmin,56px)}
    <svg viewBox="0 0 100 100"><path d="M30 10 L50 46 L10 46Z" fill="#ff3b30" stroke-linejoin="round"/><circle cx="72" cy="28" r="18" fill="#ff3b30"/><path d="M50 56 L90 92 L10 92Z" fill="#1e6bff" stroke-linejoin="round"/></svg>顏色+形狀</button>
   <button class="mode" data-m="abc" aria-label="ABC 字母">
    <svg viewBox="0 0 100 100"><text x="50" y="66" text-anchor="middle" font-family="'Baloo 2',sans-serif" font-weight="800" font-size="42"><tspan fill="#ff3b30">A</tspan><tspan fill="#1e6bff">B</tspan><tspan fill="#1f9e45">C</tspan></text></svg>字母</button>
+  <button class="mode" data-m="num" aria-label="數字 1 到 50">
+   <svg viewBox="0 0 100 100"><text x="50" y="66" text-anchor="middle" font-family="'Baloo 2',sans-serif" font-weight="800" font-size="40"><tspan fill="#ff8a00">1</tspan><tspan fill="#9b51e0">2</tspan><tspan fill="#00a0a0">3</tspan></text></svg>數字</button>
   <button class="mode" data-m="bubble" aria-label="戳泡泡">
    <svg viewBox="0 0 100 100"><defs><radialGradient id="bg1" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#bfe9ff" stop-opacity=".6"/><stop offset="1" stop-color="#5bbcff" stop-opacity=".9"/></radialGradient></defs><circle cx="38" cy="58" r="30" fill="url(#bg1)"/><circle cx="74" cy="30" r="18" fill="url(#bg1)"/><circle cx="78" cy="76" r="11" fill="url(#bg1)"/><text x="38" y="68" font-size="28" text-anchor="middle">🐥</text></svg>戳泡泡</button>
   <button class="mode" data-m="memo" aria-label="翻牌記憶">
@@ -254,10 +265,10 @@ const ABC=[['A','Apple','🍎'],['B','Ball','⚽'],['C','Cat','🐈'],['D','Dog'
 const LOOK={A:'R',B:'PRD',C:'OGQ',D:'BOP',E:'FB',F:'EP',G:'CO',H:'NM',I:'LT',J:'IL',K:'XR',L:'IT',M:'NW',N:'MH',O:'QCD',P:'RBF',Q:'OG',R:'PB',S:'Z',T:'LI',U:'VW',V:'UY',W:'MV',X:'KY',Y:'VX',Z:'SN',
  a:'oe',b:'dpq',c:'oe',d:'bqp',e:'ac',f:'t',g:'qy',h:'nb',i:'lj',j:'i',k:'h',l:'it',m:'nw',n:'mu',o:'ca',p:'qbd',q:'pdg',r:'n',s:'z',t:'fl',u:'nv',v:'uw',w:'mv',x:'k',y:'gv',z:'s'};
 const INK=['#ff3b30','#ff8a00','#d9a000','#1f9e45','#1e6bff','#9b51e0','#ff4f9a','#00a0a0'];
-const LABEL={abc:'ABC',bubble:'戳泡泡',memo:'翻牌記憶',color:'顏色配對',shape:'形狀配對',combo:'顏色加形狀',shadow:'找影子'};
+const LABEL={num:'數字',abc:'ABC',bubble:'戳泡泡',memo:'翻牌記憶',color:'顏色配對',shape:'形狀配對',combo:'顏色加形狀',shadow:'找影子'};
 const LEVELS=[2,3,4,6];
 const BUB_ROUNDS=5,BUB_NEED=5;
-const rounds=()=>mode==='memo'?LEVELS.length:mode==='bubble'?BUB_ROUNDS:8;
+const rounds=()=>mode==='memo'?LEVELS.length:mode==='bubble'?BUB_ROUNDS:mode==='num'?10:8;
 let mode='color',round=0,q=null,locked=false,wrongs=0,idle=null,last=null,lp=null;
 
 /* 語音 */
@@ -340,6 +351,41 @@ const GEN={
   const ask=stage===0?`Find the letter ${a.L}!`:stage===1?`${a.w}! ${a.w} starts with ${a.L}. Where is ${a.L}?`:`This is big ${a.L}. Where is little ${a.l}?`;
   return {en:true,ask,yes:stage===2?`Yes! Little ${a.l}!${word}`:`Yes! ${a.L}!${word}`,target:tgt,done:()=>done,
    opts:shuffle(list).map((c,i)=>({ok:c===ch,label:c,html:`<span class="tile" style="--c:${ink[(i%(ink.length-1))+1]}">${c}</span>`}))}},
+ num(n){
+  const stage=round<2?0:round<7?3:4;
+  const ink=shuffle(INK);
+  let x,lo,hi;
+  if(stage===0){lo=1;hi=round===0?5:10}else if(stage===3){lo=round<4?4:21;hi=round<4?20:50}else{lo=12;hi=49}
+  do{x=lo+Math.floor(Math.random()*(hi-lo+1))}while(last===x);last=x;
+  const ok=v=>v>=1&&v<=50&&v!==x;
+  const cand=[];
+  if(x>=10){const s=+String(x).split('').reverse().join('');cand.push(s)}
+  cand.push(...shuffle([x+1,x-1]),...shuffle([x+10,x-10,x+2,x-2]));
+  const set=new Set([x]),list=[x];
+  for(const v of cand){if(list.length>=n)break;if(ok(v)&&!set.has(v)&&(stage!==0||v<=10)){set.add(v);list.push(v)}}
+  while(list.length<n){const v=stage===0?1+Math.floor(Math.random()*10):Math.max(1,Math.min(50,x-8+Math.floor(Math.random()*17)));if(!set.has(v)){set.add(v);list.push(v)}}
+  let tgt,ask,yes,done;
+  if(stage===0){
+   const it=rnd(themePool()),es=x<=3?'26cqmin':x<=6?'20cqmin':'15cqmin';
+   tgt=`<div class="cnt" style="--es:${es}">${Array.from({length:x},()=>`<span class="emo">${it.e}</span>`).join('')}</div>`;
+   ask=`數數看，有幾個${it.n}？`;yes=`答對了！${x}個！`;done=tgt;
+  }else if(stage===3){
+   const a=x-2,b=x-1;
+   tgt=`<div class="seq"><span style="color:${ink[0]}">${a}</span><span style="color:${ink[1]}">${b}</span><b>?</b></div>`;
+   ask=`${a}，${b}，下一個是多少？`;yes=`答對了！是${x}！`;
+   done=`<div class="seq"><span style="color:${ink[0]}">${a}</span><span style="color:${ink[1]}">${b}</span><span style="color:${ink[2]}">${x}</span></div>`;
+  }else if(stage===4){
+   const a=x-1,b=x+1;
+   tgt=`<div class="seq"><span style="color:${ink[0]}">${a}</span><b>?</b><span style="color:${ink[1]}">${b}</span></div>`;
+   ask=`${a}，什麼，${b}？中間是多少？`;yes=`答對了！是${x}！`;
+   done=`<div class="seq"><span style="color:${ink[0]}">${a}</span><span style="color:${ink[2]}">${x}</span><span style="color:${ink[1]}">${b}</span></div>`;
+  }else{
+   tgt=`<div class="listen"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#2a8fd6"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="#2a8fd6" stroke-width="2" fill="none" stroke-linecap="round"/></svg><small>點我再聽一次</small></div>`;
+   ask=`${x}在哪裡？`;yes=`答對了！是${x}！`;
+   done=`<div class="seq"><span style="color:${ink[0]};font-size:50cqmin">${x}</span></div>`;
+  }
+  return {ask,yes,yesEn:String(x),target:tgt,done:()=>done,
+   opts:shuffle(list).map((v,i)=>({ok:v===x,label:String(v),html:`<span class="tile${v>=10?' two':''}" style="--c:${ink[(i%(ink.length-1))+1]}">${v}</span>`}))}},
  shadow(n){
   const pool=themePool(),a=pickAns(pool),used=new Set(a.g?[a.g]:[]),opts=[a];
   for(const x of shuffle(pool)){if(opts.length>=n)break;if(x===a||(x.g&&used.has(x.g)))continue;opts.push(x);if(x.g)used.add(x.g)}
@@ -474,6 +520,7 @@ function start(m){
 function finish(){clearTimeout(idle);stopBubbles();show('done');sfx.fan();say('好棒！你全部都找到了！');confetti()}
 function goHome(){clearTimeout(idle);memoT.forEach(clearTimeout);stopBubbles();try{speechSynthesis.cancel()}catch(e){}show('home')}
 
+$('.board').addEventListener('click',()=>{if(q&&!locked&&$('#game').classList.contains('on')){audio();sp(q.ask);armIdle()}});
 $('#choices').addEventListener('click',e=>{
  const b=e.target.closest('.choice');if(!b||locked)return;
  audio();const i=+b.dataset.i,o=q.opts[i];armIdle();
@@ -481,7 +528,7 @@ $('#choices').addEventListener('click',e=>{
   locked=true;clearTimeout(idle);sfx.win();b.classList.add('win');
   for(const x of $('#choices').children)if(x!==b)x.classList.add('gone');
   const t=$('#target');t.innerHTML=q.done(i);t.classList.add('pop');burst(t);
-  setTimeout(()=>sp(q.yes),250);
+  setTimeout(()=>{sp(q.yes);if(q.yesEn)sayEn(q.yesEn,true)},250);
   earn(round);round++;
   setTimeout(()=>round>=rounds()?finish():newRound(),2600);
  }else{
